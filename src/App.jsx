@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import {
+  Apple,
   Battery,
   Bluetooth,
   Calculator,
@@ -35,6 +36,16 @@ const apps = [
 ];
 
 function App() {
+  const [booting, setBooting] = useState(true);
+const [locked, setLocked] = useState(true);
+
+useEffect(() => {
+  const timer = setTimeout(() => {
+    setBooting(false);
+  }, 2200);
+
+  return () => clearTimeout(timer);
+}, []);
   const [openApp, setOpenApp] = useState(null);
 
   const [windowState, setWindowState] = useState({
@@ -209,7 +220,19 @@ function App() {
         {/* SCREEN */}
 
         <div className="ipad-screen">
+{booting && (
+  <div className="boot-screen">
+    <div className="boot-logo">
+      <Apple size={48} strokeWidth={1.5} />
+    </div>
 
+    <div className="boot-loader">
+      <span />
+    </div>
+
+    <p>Starting iPad...</p>
+  </div>
+)}
           {/* =========================
               LIVE WALLPAPER
           ========================= */}
@@ -232,13 +255,53 @@ function App() {
             <div className="wallpaper-overlay" />
 
           </div>
+{!booting && locked && (
+  <div
+    className="lock-screen"
+    onClick={() => {
+      clickSound();
+      setLocked(false);
+    }}
+  >
+    <div className="lock-content">
 
+      <div className="lock-icon">
+        <Lock size={18} />
+      </div>
+
+      <div className="lock-time">
+        9:41
+      </div>
+
+      <div className="lock-date">
+        Thursday, August 20
+      </div>
+
+      <div className="lock-message">
+        <strong>Copet's iPad</strong>
+        <span>Tap anywhere to unlock</span>
+      </div>
+
+    </div>
+
+    <div className="lock-bottom">
+      <button onClick={(e) => e.stopPropagation()}>
+        <Volume2 size={18} />
+      </button>
+
+      <div className="lock-indicator" />
+
+      <button onClick={(e) => e.stopPropagation()}>
+        <Search size={18} />
+      </button>
+    </div>
+  </div>
+)}
           {/* =========================
               IPAD UI
           ========================= */}
 
-          <div className="ipad-ui">
-
+          <div className={`ipad-ui ${locked ? "ui-locked" : ""}`}>
             {/* STATUS BAR */}
 
             <header className="statusbar">
