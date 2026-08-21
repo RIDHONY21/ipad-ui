@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { supabase } from "./lib/supabase";
 import {
   Apple,
   Battery,
@@ -16,6 +17,7 @@ import {
   Settings,
   Share2,
   Speaker,
+  Star,
   Sun,
   Trash2,
   Volume2,
@@ -33,6 +35,10 @@ const apps = [
   { id: "settings", name: "Settings", icon: Settings, color: "gray" },
   { id: "messages", name: "Messages", icon: MessageCircle, color: "green" },
   { id: "love", name: "Love", icon: Heart, color: "pink" },
+  { id: "rating",name: "Rating",
+  icon: Star,
+  color: "yellow"
+},
 ];
 
 function App() {
@@ -698,6 +704,10 @@ useEffect(() => {
                 </div>
 
                 <div className="app-window-content">
+
+                  {openApp === "rating" && (
+  <RatingApp />
+)}
 
                   {openApp === "files" && (
                     <FilesApp />
@@ -2358,6 +2368,8 @@ function LoveApp() {
         preload="auto"
       />
 
+
+
       {/* =========================
           INTRO
       ========================= */}
@@ -2484,5 +2496,193 @@ function LoveApp() {
     </div>
   );
 }
+/* =========================
+   RATING APP
+========================= */
+
+function RatingApp() {
+  const [name, setName] = useState("");
+  const [rating, setRating] = useState(0);
+  const [hover, setHover] = useState(0);
+  const [comment, setComment] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+
+  const submitRating = async () => {
+    const cleanName = name.trim();
+    const cleanComment = comment.trim();
+
+    if (!cleanName) {
+      setError("Masukkan nama dulu.");
+      return;
+    }
+
+    if (rating === 0) {
+      setError("Pilih rating dulu.");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    const { error: insertError } = await supabase
+      .from("ratings")
+      .insert({
+        name: cleanName,
+        rating,
+        comment: cleanComment || null,
+      });
+
+    setLoading(false);
+
+    if (insertError) {
+      console.error(insertError);
+      setError("Gagal mengirim rating. Coba lagi.");
+      return;
+    }
+
+    setSubmitted(true);
+  };
+
+  return (
+    <div className="rating-screen">
+
+      <div className="rating-glow" />
+
+      <div className="rating-card">
+
+        {!submitted ? (
+          <>
+            <div className="rating-icon">
+              <Star
+                size={38}
+                fill="currentColor"
+              />
+            </div>
+
+            <span className="rating-label">
+              YOUR EXPERIENCE
+            </span>
+
+            <h1>Rate My iPad</h1>
+
+            <p>
+              Kasih rating dan pendapat lu ⭐
+            </p>
+
+            <div className="rating-input-group">
+              <label>Nama</label>
+
+              <input
+                type="text"
+                value={name}
+                maxLength={50}
+                onChange={(e) =>
+                  setName(e.target.value)
+                }
+                placeholder="Masukkan nama..."
+              />
+            </div>
+
+            <div className="rating-stars">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onMouseEnter={() =>
+                    setHover(star)
+                  }
+                  onMouseLeave={() =>
+                    setHover(0)
+                  }
+                  onClick={() =>
+                    setRating(star)
+                  }
+                >
+                  <Star
+                    size={34}
+                    fill={
+                      star <=
+                      (hover || rating)
+                        ? "currentColor"
+                        : "none"
+                    }
+                  />
+                </button>
+              ))}
+            </div>
+
+            <div className="rating-text">
+              {rating === 0 && "Pilih rating lu ⭐"}
+              {rating === 1 && "Waduh 😭"}
+              {rating === 2 && "Lumayan 😅"}
+              {rating === 3 && "Cukup bagus 👍"}
+              {rating === 4 && "Bagus banget 🔥"}
+              {rating === 5 && "PERFECT! ❤️"}
+            </div>
+
+            <div className="rating-input-group">
+              <label>Komentar</label>
+
+              <textarea
+                value={comment}
+                maxLength={300}
+                onChange={(e) =>
+                  setComment(e.target.value)
+                }
+                placeholder="Tulis pendapat lu..."
+              />
+            </div>
+
+            {error && (
+              <div className="rating-error">
+                {error}
+              </div>
+            )}
+
+            <button
+              className="rating-submit"
+              onClick={submitRating}
+              disabled={loading}
+            >
+              <Star size={17} />
+
+              {loading
+                ? "Mengirim..."
+                : "Submit Rating"}
+            </button>
+          </>
+        ) : (
+          <div className="rating-success-screen">
+
+            <div className="rating-success-icon">
+              ✓
+            </div>
+
+            <h1>Thanks, {name}! ❤️</h1>
+
+            <p>
+              Rating lu berhasil disimpan.
+            </p>
+
+            <div className="submitted-rating">
+              {"★".repeat(rating)}
+              {"☆".repeat(5 - rating)}
+            </div>
+
+          </div>
+        )}
+
+      </div>
+
+      <div className="rating-footer">
+        Made with ❤️
+      </div>
+
+    </div>
+  );
+}
+
 
 export default App;
