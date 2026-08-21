@@ -23,6 +23,9 @@ import {
   Volume2,
   Wifi,
   X,
+  Cake,
+PartyPopper,
+Sparkles,
 } from "lucide-react";
 
 import "./App.css";
@@ -38,6 +41,12 @@ const apps = [
   { id: "rating",name: "Rating",
   icon: Star,
   color: "yellow"
+},
+{
+  id: "useless",
+  name: "Birthday",
+  icon: Cake,
+  color: "pink",
 },
 ];
 
@@ -705,6 +714,9 @@ useEffect(() => {
 
                 <div className="app-window-content">
 
+{openApp === "useless" && (
+  <UselessButtonApp />
+)}
                   {openApp === "rating" && (
   <RatingApp />
 )}
@@ -739,6 +751,9 @@ useEffect(() => {
                   {openApp === "love" && (
                     <LoveApp />
                   )}
+                  {openApp === "useless" && (
+  <UselessButtonApp />
+)}
 
                 </div>
 
@@ -2295,7 +2310,6 @@ function MessagesApp() {
 /* =========================
    LOVE APP
 ========================= */
-
 function LoveApp() {
   const audioRef = useRef(null);
 
@@ -2683,6 +2697,194 @@ function RatingApp() {
     </div>
   );
 }
+/* =========================
+   USELESS BUTTON APP
+========================= */
 
+function UselessButtonApp() {
+  const [count, setCount] = useState(0);
+  const [message, setMessage] = useState(
+    "PENCET TERUS"
+  );
+  const [buttonPosition, setButtonPosition] = useState({
+    x: 0,
+    y: 0,
+  });
+  const [finished, setFinished] = useState(false);
+
+  const messages = [
+    "Are you sure? 🤨",
+    "Bro... I said DON'T 😭",
+    "You actually pressed it.",
+    "Why would you do that 💀",
+    "STOP.",
+    "I'm warning you...",
+    "This button literally does nothing.",
+    "You have too much free time 😭",
+    "Okay this is getting ridiculous.",
+    "BROOOOO 💀",
+    "Last warning.",
+  ];
+
+  const pressButton = () => {
+    const nextCount = count + 1;
+
+    setCount(nextCount);
+
+    if (nextCount >= 20) {
+      setFinished(true);
+      setMessage(
+        "CONGRATULATIONS 🎉 You accomplished absolutely nothing."
+      );
+      return;
+    }
+
+    setMessage(
+      messages[
+        Math.min(nextCount - 1, messages.length - 1)
+      ]
+    );
+
+    if (nextCount >= 4 && nextCount < 15) {
+      const x = Math.random() * 220 - 110;
+      const y = Math.random() * 120 - 60;
+
+      setButtonPosition({
+        x,
+        y,
+      });
+    }
+  };
+
+  const resetButton = () => {
+    setCount(0);
+    setMessage(
+      "Whatever you do... DON'T PRESS IT."
+    );
+    setButtonPosition({
+      x: 0,
+      y: 0,
+    });
+    setFinished(false);
+  };
+
+  return (
+    <div className="useless-screen">
+
+      {/* BACKGROUND */}
+
+      <div className="useless-bg-glow" />
+
+      {/* HEADER */}
+
+      <div className="useless-header">
+        <span>USELESS UTILITY</span>
+
+        <div className="useless-counter">
+          {count} presses
+        </div>
+      </div>
+
+      {/* CONTENT */}
+
+      <div className="useless-content">
+
+        <div
+          className={`useless-warning ${
+            count >= 10
+              ? "warning-angry"
+              : ""
+          }`}
+        >
+          {finished
+            ? "MISSION COMPLETE"
+            : "SYSTEM WARNING"}
+        </div>
+
+        <h1>
+          {finished
+            ? "SELAMAT ULANG TAHUN"
+            : "MAU LIAT KEJUTAN GA COBA PENCET"}
+        </h1>
+
+        <p className="useless-message">
+          {message}
+        </p>
+
+        {!finished ? (
+          <div className="useless-button-area">
+
+            <button
+              className={`useless-button ${
+                count >= 10
+                  ? "button-angry"
+                  : ""
+              }`}
+              onClick={pressButton}
+              style={{
+                transform: `translate(
+                  ${buttonPosition.x}px,
+                  ${buttonPosition.y}px
+                )`,
+              }}
+            >
+              <span className="useless-button-inner">
+                {count >= 15
+                  ? "PENCET TERUS"
+                  : "PENCET"}
+              </span>
+            </button>
+
+          </div>
+        ) : (
+          <div className="useless-complete">
+
+            <div className="useless-check">
+              ✓
+            </div>
+
+            <strong>
+              Absolutely nothing happened.
+            </strong>
+
+            <button
+              className="useless-reset"
+              onClick={resetButton}
+            >
+              Do it again
+            </button>
+
+          </div>
+        )}
+
+        <div className="useless-status">
+
+          <span className="status-dot" />
+
+          SYSTEM STATUS:
+
+          <strong>
+            COMPLETELY USELESS
+          </strong>
+
+        </div>
+
+      </div>
+
+      {/* FOOTER */}
+
+      <div className="useless-footer">
+        <span>
+          Designed to do absolutely nothing.
+        </span>
+
+        <span>
+          v1.0.0
+        </span>
+      </div>
+
+    </div>
+  );
+}
 
 export default App;
